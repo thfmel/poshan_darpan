@@ -798,27 +798,6 @@ function calculate() {
     <span class="pill">Weight: ${weight} kg</span>
   `;
 
-
-    let zScore;
-
-// Estimate Z-score using linear interpolation
-if (weight <= samMax) {
-  zScore = -3 - ((samMax - weight) / samMax); // below -3
-} else if (weight <= mamMax) {
-  zScore = -3 + ((weight - samMax) / (mamMax - samMax)) * 1; // -3 to -2
-} else if (weight <= normalMax) {
-  zScore = -2 + ((weight - mamMax) / (normalMax - mamMax)) * 4; // -2 to +2
-} else if (weight <= overweightMax) {
-  zScore = 2 + ((weight - normalMax) / (overweightMax - normalMax)) * 1; // +2 to +3
-} else {
-  zScore = 3 + ((weight - overweightMax) / overweightMax); // > +3
-}
-
-// Round to 2 decimals
-zScore = zScore.toFixed(2);
-
-    document.getElementById('zValue').textContent = `Z-Score: ${zScore}`;
-  
   resultEl.classList.add('visible');
   resultEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
@@ -839,10 +818,6 @@ document.getElementById('age').addEventListener('input', function() {
 // Enter key
 document.addEventListener('keydown', e => {
   if (e.key === 'Enter') calculate();
-
-
-
-
 });
 </script>
 </body>
