@@ -1,140 +1,856 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WHZ Calculator - Children 0-59 Months</title>
-    <style>
-        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
-        input, select, button { padding: 10px; margin: 5px; }
-        table { border-collapse: collapse; width: 100%; margin-top: 20px; }
-        th, td { border: 1px solid #ddd; padding: 8px; text-align: center; }
-        .status { font-weight: bold; padding: 10px; margin: 10px 0; border-radius: 5px; }
-        .sam { background: #ff4444; color: white; }
-        .mam { background: #ffaa00; color: white; }
-        .normal { background: #44ff44; }
-        .over { background: #ffdd44; }
-        .obese { background: #ff8844; color: white; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WHZ Calculator — Child Nutrition Assessment</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;1,9..144,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f5f0e8;
+    --surface: #fffef9;
+    --ink: #1a1208;
+    --ink-light: #5a4e3a;
+    --accent: #c4501a;
+    --accent-soft: #f0e0d6;
+    --green: #2d6a4f;
+    --green-soft: #d8f3dc;
+    --amber: #b5821b;
+    --amber-soft: #fef3cd;
+    --red: #9b2226;
+    --red-soft: #fde8e9;
+    --orange: #e07000;
+    --orange-soft: #fff0d6;
+    --border: #d6cdb8;
+    --shadow: rgba(26,18,8,0.08);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background-color: lightblue;
+    color: var(--ink);
+    font-family: 'DM Mono', monospace;
+    min-height: 100vh;
+    padding: 1rem 1rem 4rem;
+  }
+
+  /* Subtle grid texture */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: 
+      linear-gradient(var(--border) 1px, transparent 1px),
+      linear-gradient(90deg, var(--border) 1px, transparent 1px);
+    background-size: 40px 40px;
+    opacity: 0.25;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .wrapper {
+    max-width: 640px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
+  }
+
+  header {
+    padding: 1.5rem 0 2rem;
+    border-bottom: 2px solid var(--ink);
+    margin-bottom: 0.5rem;
+    text-align: center;
+  }
+
+  .label-tag {
+    display: inline-block;
+    font-size: 0.7rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--accent);
+    border: 1px solid var(--accent);
+    padding: 0.25rem 0.7rem;
+    margin-bottom: 0.5rem;
+  }
+
+  h1 {
+    font-family: 'Fraunces', serif;
+    font-size: clamp(1.8rem, 6vw, 2.8rem);
+    font-weight: 600;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    text-align: center;
+  }
+
+  h1 span {
+    color: var(--accent);
+    font-style: italic;
+  }
+
+  .subtitle {
+    font-size: 0.8rem;
+    color: var(--ink-light);
+    margin-top: 0.5rem;
+    letter-spacing: 0.03em;
+    text-align: center;
+  }
+
+  /* Form Card */
+  .card {
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: 2px;
+    padding: 1.75rem;
+    box-shadow: 4px 4px 0 var(--border);
+    margin-bottom: 0.5rem;
+  }
+
+  .card-title {
+    font-size: 0.7rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--ink-light);
+    margin-bottom: 0.5rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .field-row {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+
+  .field label {
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-light);
+  }
+
+  .field input, .field select {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.9rem;
+    background: var(--bg);
+    border: 1.5px solid var(--border);
+    border-radius: 2px;
+    padding: 0.65rem 0.75rem;
+    color: var(--ink);
+    transition: border-color 0.15s, box-shadow 0.15s;
+    outline: none;
+    appearance: none;
+    -webkit-appearance: none;
+  }
+
+  .field select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%235a4e3a' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    padding-right: 2rem;
+  }
+
+  .field input:focus, .field select:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-soft);
+  }
+
+  .field .hint {
+    font-size: 0.6rem;
+    color: var(--ink-light);
+    letter-spacing: 0.03em;
+  }
+
+  .btn {
+    width: 100%;
+    padding: 0.9rem;
+    background: var(--ink);
+    color: var(--bg);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.75rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    border: none;
+    border-radius: 2px;
+    cursor: pointer;
+    margin-top: 0.5rem;
+    transition: background 0.15s, transform 0.1s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .btn:hover { background: var(--accent); }
+  .btn:active { transform: scale(0.99); }
+
+  .btn::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: white;
+    opacity: 0;
+    transition: opacity 0.1s;
+  }
+  .btn:active::after { opacity: 0.05; }
+
+  /* Result */
+  .result {
+    display: none;
+    animation: slideIn 0.3s ease;
+  }
+
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .result.visible { display: block; }
+
+  .status-card {
+    border: 2px solid;
+    border-radius: 2px;
+    padding: 1.5rem 2rem;
+    box-shadow: 4px 4px 0;
+  }
+
+  .status-card.sam   { border-color: var(--red);    box-shadow-color: var(--red);    background: var(--red-soft); }
+  .status-card.mam   { border-color: var(--orange);  box-shadow-color: var(--orange);  background: var(--orange-soft); }
+  .status-card.normal { border-color: var(--green); box-shadow-color: var(--green); background: var(--green-soft); }
+  .status-card.overweight { border-color: var(--amber); box-shadow-color: var(--amber); background: var(--amber-soft); }
+  .status-card.obesity { border-color: var(--red); box-shadow-color: var(--red); background: var(--red-soft); }
+
+  .status-label {
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 0.4rem;
+  }
+  .status-card.sam .status-label   { color: var(--red); }
+  .status-card.mam .status-label   { color: var(--orange); }
+  .status-card.normal .status-label { color: var(--green); }
+  .status-card.overweight .status-label { color: var(--amber); }
+  .status-card.obesity .status-label { color: var(--red); }
+
+  .status-name {
+    font-family: 'Fraunces', serif;
+    font-size: 2rem;
+    font-weight: 600;
+    line-height: 1;
+    margin-bottom: 0.75rem;
+  }
+  .status-card.sam .status-name   { color: var(--red); }
+  .status-card.mam .status-name   { color: var(--orange); }
+  .status-card.normal .status-name { color: var(--green); }
+  .status-card.overweight .status-name { color: var(--amber); }
+  .status-card.obesity .status-name { color: var(--red); }
+
+  .status-desc {
+    font-size: 0.72rem;
+    color: var(--ink-light);
+    line-height: 1.7;
+  }
+
+  .z-range {
+    display: inline-block;
+    font-size: 0.7rem;
+    letter-spacing: 0.05em;
+    padding: 0.2rem 0.5rem;
+    background: white;
+    border-radius: 2px;
+    margin-top: 0.6rem;
+    border: 1px solid var(--border);
+    color: var(--ink);
+  }
+
+  .input-summary {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+  }
+
+  .pill {
+    font-size: 0.62rem;
+    letter-spacing: 0.08em;
+    padding: 0.2rem 0.6rem;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    color: var(--ink-light);
+  }
+
+  /* Scale visual */
+  .scale-bar {
+    margin-top: 1rem;
+    height: 8px;
+    border-radius: 4px;
+    background: linear-gradient(90deg, 
+      var(--red) 0%, var(--red) 15%,
+      var(--orange) 15%, var(--orange) 25%,
+      var(--green) 25%, var(--green) 65%,
+      var(--amber) 65%, var(--amber) 82%,
+      #c0392b 82%, #c0392b 100%
+    );
+    position: relative;
+    overflow: visible;
+  }
+
+  .scale-marker {
+    position: absolute;
+    top: -4px;
+    width: 16px;
+    height: 16px;
+    background: var(--ink);
+    border: 2px solid var(--surface);
+    border-radius: 50%;
+    transform: translateX(-50%);
+    transition: left 0.4s cubic-bezier(0.34,1.56,0.64,1);
+    box-shadow: 0 2px 6px var(--shadow);
+  }
+
+  .scale-labels {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 0.4rem;
+    font-size: 0.55rem;
+    color: var(--ink-light);
+    letter-spacing: 0.05em;
+  }
+
+  .error-msg {
+    background: var(--red-soft);
+    border: 1.5px solid var(--red);
+    border-radius: 2px;
+    padding: 0.75rem 1rem;
+    font-size: 0.72rem;
+    color: var(--red);
+    display: none;
+  }
+  .error-msg.visible { display: block; }
+
+  /* Reference note */
+  .note {
+    font-size: 0.62rem;
+    color: var(--ink-light);
+    line-height: 1.7;
+    padding: 1rem;
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    background: var(--surface);
+  }
+
+  .note strong { color: var(--ink); }
+
+  footer {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border);
+    font-size: 0.6rem;
+    color: var(--ink-light);
+    letter-spacing: 0.05em;
+    text-align: center;
+  }
+
+  @media (max-width: 480px) {
+    .field-row { grid-template-columns: 1fr; }
+    .card { padding: 1.25rem; }
+  }
+</style>
 </head>
 <body>
-    <h1>WHO WHZ Calculator for Children 0-59 Months</h1>
-    <input type="file" id="csvFile" accept=".csv">
-    <div>
-        <label>Age (months, 0-59): <input type="number" id="age" min="0" max="59" step="1"></label>
-        <label>Sex: <select id="sex"><option value="0">Female</option><option value="1">Male</option></select></label>
-        <label>Height (cm): <input type="number" id="height" min="45" max="120" step="0.1"></label>
-        <label>Weight (kg): <input type="number" id="weight" min="2" max="30" step="0.1"></label>
-        <button onclick="calculateWHZ()">Calculate WHZ</button>
+<div class="wrapper">
+  <header>
+    <h1 style="color: #1e3a8a; font-size: 25px;">Child Growth Monitoring<br></h1>
+    <p class="subtitle">Weight-for-Height Z-Score (WHZ)</p>
+    <p class="subtitle">(Children 0–59 months)</p>
+  </header>
+
+  <div class="card">
+    <div class="card-title">Child Measurements</div>
+
+    <div class="field-row">
+      <div class="field">
+        <label>Sex</label>
+        <select id="sex">
+          <option value="">— Select —</option>
+          <option value="boy">Boy</option>
+          <option value="girl">Girl</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Age (months)</label>
+        <input type="number" id="age" placeholder="e.g. 18" min="0" max="59">
+        <span class="hint">0–59 months</span>
+      </div>
     </div>
-    <div id="result"></div>
-    <div id="tablePreview"></div>
-    <button onclick="exportResults()" style="display:none;" id="exportBtn">Export Results</button>
 
-    <script>
-        let data = {};
-        let results = [];
+    <div class="field-row">
+      <div class="field">
+        <label>Length / Height (cm)</label>
+        <input type="number" id="height" placeholder="e.g. 75.0" min="45" max="120" step="0.1">
+        <span class="hint" id="measureHint">Lying down for &lt;24 months or &lt;87 cm</span>
+      </div>
+      <div class="field">
+        <label>Weight (kg)</label>
+        <input type="number" id="weight" placeholder="e.g. 8.5" min="0" max="50" step="0.1">
+      </div>
+    </div>
 
-        document.getElementById('csvFile').addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(ev) {
-                    const text = ev.target.result;
-                    parseCSV(text);
-                };
-                reader.readAsText(file);
-            }
-        });
+    <div class="error-msg" id="errorMsg">Please fill in all fields with valid values.</div>
 
-        function parseCSV(text) {
-            const lines = text.split('\n').filter(line => line.trim());
-            data = {};
-            for (let i = 1; i < lines.length; i++) {  // Skip header
-                const cols = lines[i].split(/[\s,]+/).filter(c => c);
-                if (cols.length >= 2) {
-                    const key = cols[0];  // AgeSexHeight e.g., "019410.6"
-                    const whz = parseFloat(cols[1]);
-                    data[key] = whz;
-                }
-            }
-            showPreview();
-        }
+    <button class="btn" onclick="calculate()">Calculate Z-Score →</button>
+  </div>
 
-        function showPreview() {
-            const keys = Object.keys(data).slice(0, 20);
-            let html = '<h3>Data Preview</h3><table><tr><th>Key (AgeSexHeight)</th><th>WHZ</th></tr>';
-            keys.forEach(k => {
-                html += `<tr><td>${k}</td><td>${data[k].toFixed(2)}</td></tr>`;
-            });
-            html += '</table>';
-            document.getElementById('tablePreview').innerHTML = html;
-        }
+  <div class="result" id="result">
+    <div class="card" style="padding:0; overflow:hidden; border:none; box-shadow:none; background:transparent;">
+      <div class="input-summary" id="inputSummary"></div>
+      <div class="status-card" id="statusCard">
+        <div class="status-label" id="statusLabel">Nutritional Status</div>
+        <div class="status-name" id="statusName">—</div>
+        <div class="status-desc" id="statusDesc"></div>
+        <div class="z-range" id="zRange"></div>
+        <div class="scale-bar" id="scalebar">
+          <div class="scale-marker" id="marker" style="left:50%"></div>
+        </div>
+        <div class="scale-labels">
+          <span>SAM (&lt;−3)</span>
+          <span>MAM</span>
+          <span>Normal</span>
+          <span>Overweight</span>
+          <span>Obese</span>
+        </div>
+      </div>
+    </div>
+  </div>
 
-        function findNearestKey(age, sex, height) {
-            const prefix = age.toString().padStart(2, '0') + sex.toString() + Math.round(height * 10).toString().padStart(3, '0');
-            let bestKey = null;
-            let minDist = Infinity;
-            for (let key in data) {
-                if (key.startsWith(prefix.slice(0, -1))) {  // Match up to tenths
-                    const dist = Math.abs(parseFloat(key.slice(-4)) - height);
-                    if (dist < minDist) {
-                        minDist = dist;
-                        bestKey = key;
-                    }
-                }
-            }
-            return bestKey ? data[bestKey] : null;
-        }
+  <div class="note">
+    <strong>How to measure:</strong> Children 0–23 months or &lt;87 cm — measure <em>lying down</em> (length). Children 24–59 months or ≥87 cm — measure <em>standing up</em> (height). Use the nearest whole centimetre from the table. Classification is based on WHO/NACS reference tables (USAID, April 2016).
+  </div>
 
-        function getStatus(whz) {
-            if (whz < -3) return {text: 'SAM (< -3)', class: 'sam'};
-            if (whz >= -3 && whz < -2) return {text: 'MAM (≥ -3 to < -2)', class: 'mam'};
-            if (whz >= -2 && whz <= 2) return {text: 'Normal (≥ -2 to ≤ +2)', class: 'normal'};
-            if (whz > 2 && whz <= 3) return {text: 'Overweight (> +2 to ≤ +3)', class: 'over'};
-            return {text: 'Obesity (> +3)', class: 'obese'};
-        }
+</div>
 
-        function calculateWHZ() {
-            const age = parseInt(document.getElementById('age').value);
-            const sex = parseInt(document.getElementById('sex').value);
-            const height = parseFloat(document.getElementById('height').value);
-            const weight = parseFloat(document.getElementById('weight').value);
+<script>
+// Full WHZ lookup tables extracted from PDF
+// Structure: tables[sex][ageGroup][cm] = { sam:[0,x], mam:[x,y], normal:[y,z], overweight:[z,w], obesity:[w,Inf] }
+// We store as [SAM_max, MAM_max, Normal_max, Overweight_max]
+// Weight >= 0 and <= boundary for each zone
 
-            if (!data || Object.keys(data).length === 0) {
-                alert('Please upload Data.csv first.');
-                return;
-            }
+const tables = {
+  boy: {
+    "0-23": {
+      45: [1.8, 1.9, 3.0, 3.3],
+      46: [1.9, 2.1, 3.1, 3.5],
+      47: [2.0, 2.2, 3.3, 3.7],
+      48: [2.2, 2.4, 3.6, 3.9],
+      49: [2.3, 2.5, 3.8, 4.2],
+      50: [2.5, 2.7, 4.0, 4.4],
+      51: [2.6, 2.9, 4.2, 4.7],
+      52: [2.8, 3.1, 4.5, 5.0],
+      53: [3.0, 3.3, 4.8, 5.3],
+      54: [3.2, 3.5, 5.1, 5.6],
+      55: [3.5, 3.7, 5.4, 6.0],
+      56: [3.7, 4.0, 5.8, 6.3],
+      57: [3.9, 4.2, 6.1, 6.7],
+      58: [4.2, 4.5, 6.4, 7.1],
+      59: [4.4, 4.7, 6.8, 7.4],
+      60: [4.6, 5.0, 7.1, 7.8],
+      61: [4.8, 5.2, 7.4, 8.1],
+      62: [5.0, 5.5, 7.7, 8.5],
+      63: [5.2, 5.7, 8.0, 8.8],
+      64: [5.4, 5.9, 8.3, 9.1],
+      65: [5.6, 6.1, 8.6, 9.4],
+      66: [5.8, 6.3, 8.9, 9.7],
+      67: [6.0, 6.5, 9.2, 10.0],
+      68: [6.2, 6.7, 9.4, 10.3],
+      69: [6.4, 6.9, 9.7, 10.6],
+      70: [6.5, 7.1, 10.0, 10.9],
+      71: [6.7, 7.3, 10.2, 11.2],
+      72: [6.9, 7.5, 10.5, 11.5],
+      73: [7.1, 7.6, 10.8, 11.8],
+      74: [7.2, 7.8, 11.0, 12.1],
+      75: [7.4, 8.0, 11.3, 12.3],
+      76: [7.5, 8.2, 11.5, 12.6],
+      77: [7.7, 8.3, 11.7, 12.8],
+      78: [7.8, 8.5, 12.0, 13.1],
+      79: [8.0, 8.6, 12.2, 13.3],
+      80: [8.1, 8.8, 12.4, 13.6],
+      81: [8.3, 9.0, 12.6, 13.8],
+      82: [8.4, 9.1, 12.8, 14.0],
+      83: [8.6, 9.3, 13.1, 14.3],
+      84: [8.8, 9.5, 13.3, 14.6],
+      85: [9.0, 9.7, 13.6, 14.9],
+      86: [9.2, 9.9, 13.9, 15.2],
+      87: [9.4, 10.1, 14.2, 15.5],
+      88: [9.6, 10.4, 14.5, 15.8],
+      89: [9.8, 10.6, 14.7, 16.1],
+      90: [10.0, 10.8, 15.0, 16.4],
+      91: [10.2, 11.0, 15.3, 16.7],
+      92: [10.4, 11.2, 15.6, 17.0],
+      93: [10.6, 11.4, 15.8, 17.3],
+      94: [10.7, 11.6, 16.1, 17.6],
+      95: [10.9, 11.8, 16.4, 17.9],
+      96: [11.1, 12.0, 16.7, 18.2],
+      97: [11.3, 12.2, 17.0, 18.5],
+      98: [11.5, 12.4, 17.3, 18.9],
+      99: [11.7, 12.6, 17.6, 19.2],
+      100: [11.9, 12.8, 18.0, 19.6]
+    },
+    "24-59": {
+      65: [5.8, 6.2, 8.8, 9.6],
+      66: [6.0, 6.4, 9.1, 9.9],
+      67: [6.1, 6.6, 9.4, 10.2],
+      68: [6.3, 6.8, 9.6, 10.5],
+      69: [6.5, 7.0, 9.9, 10.8],
+      70: [6.7, 7.2, 10.2, 11.1],
+      71: [6.8, 7.4, 10.4, 11.4],
+      72: [7.0, 7.6, 10.7, 11.7],
+      73: [7.2, 7.8, 11.0, 12.0],
+      74: [7.3, 7.9, 11.2, 12.2],
+      75: [7.5, 8.1, 11.4, 12.5],
+      76: [7.6, 8.3, 11.7, 12.8],
+      77: [7.8, 8.4, 11.9, 13.0],
+      78: [7.9, 8.6, 12.1, 13.3],
+      79: [8.1, 8.7, 12.3, 13.5],
+      80: [8.2, 8.9, 12.6, 13.7],
+      81: [8.4, 9.1, 12.8, 14.0],
+      82: [8.6, 9.2, 13.0, 14.2],
+      83: [8.7, 9.4, 13.3, 14.5],
+      84: [8.9, 9.6, 13.5, 14.8],
+      85: [9.1, 9.9, 13.8, 15.1],
+      86: [9.3, 10.1, 14.1, 15.4],
+      87: [9.5, 10.3, 14.4, 15.7],
+      88: [9.7, 10.5, 14.7, 16.0],
+      89: [9.9, 10.7, 14.9, 16.3],
+      90: [10.1, 10.9, 15.2, 16.6],
+      91: [10.3, 11.1, 15.5, 16.9],
+      92: [10.5, 11.3, 15.8, 17.2],
+      93: [10.7, 11.5, 16.0, 17.5],
+      94: [10.9, 11.7, 16.3, 17.8],
+      95: [11.0, 11.9, 16.6, 18.1],
+      96: [11.2, 12.1, 16.9, 18.4],
+      97: [11.4, 12.3, 17.2, 18.8],
+      98: [11.6, 12.5, 17.5, 19.1],
+      99: [11.8, 12.8, 17.9, 19.5],
+      100: [12.0, 13.0, 18.2, 19.9],
+      101: [12.2, 13.2, 18.5, 20.3],
+      102: [12.4, 13.5, 18.9, 20.7],
+      103: [12.7, 13.7, 19.3, 21.1],
+      104: [12.9, 13.9, 19.7, 21.6],
+      105: [13.1, 14.2, 20.1, 22.0],
+      106: [13.3, 14.4, 20.5, 22.5],
+      107: [13.6, 14.7, 20.9, 22.9],
+      108: [13.8, 15.0, 21.3, 23.4],
+      109: [14.0, 15.2, 21.8, 23.9],
+      110: [14.3, 15.5, 22.2, 24.4],
+      111: [14.5, 15.8, 22.7, 25.0],
+      112: [14.8, 16.1, 23.1, 25.5],
+      113: [15.1, 16.4, 23.6, 26.0],
+      114: [15.3, 16.7, 24.1, 26.6],
+      115: [15.6, 17.0, 24.6, 27.2],
+      116: [15.9, 17.3, 25.1, 27.8],
+      117: [16.1, 17.6, 25.6, 28.3],
+      118: [16.4, 17.9, 26.1, 28.9],
+      119: [16.7, 18.2, 26.6, 29.5],
+      120: [17.0, 18.5, 27.2, 30.1]
+    }
+  },
+  girl: {
+    "0-23": {
+      45: [1.8, 2.0, 3.0, 3.3],
+      46: [1.9, 2.1, 3.2, 3.5],
+      47: [2.1, 2.3, 3.4, 3.7],
+      48: [2.2, 2.4, 3.6, 4.0],
+      49: [2.3, 2.5, 3.8, 4.2],
+      50: [2.5, 2.7, 4.0, 4.5],
+      51: [2.7, 2.9, 4.3, 4.8],
+      52: [2.8, 3.1, 4.6, 5.1],
+      53: [3.0, 3.3, 4.9, 5.4],
+      54: [3.2, 3.5, 5.2, 5.7],
+      55: [3.4, 3.7, 5.5, 6.1],
+      56: [3.6, 3.9, 5.8, 6.4],
+      57: [3.8, 4.2, 6.1, 6.8],
+      58: [4.0, 4.4, 6.5, 7.1],
+      59: [4.2, 4.6, 6.8, 7.5],
+      60: [4.4, 4.8, 7.1, 7.8],
+      61: [4.6, 5.0, 7.4, 8.2],
+      62: [4.8, 5.2, 7.7, 8.5],
+      63: [5.0, 5.4, 8.0, 8.8],
+      64: [5.2, 5.6, 8.3, 9.1],
+      65: [5.4, 5.8, 8.6, 9.5],
+      66: [5.5, 6.0, 8.8, 9.8],
+      67: [5.7, 6.2, 9.1, 10.0],
+      68: [5.9, 6.4, 9.4, 10.3],
+      69: [6.0, 6.6, 9.6, 10.6],
+      70: [6.2, 6.8, 9.9, 10.9],
+      71: [6.4, 6.9, 10.1, 11.1],
+      72: [6.5, 7.1, 10.3, 11.4],
+      73: [6.7, 7.3, 10.6, 11.7],
+      74: [6.8, 7.4, 10.8, 11.9],
+      75: [7.0, 7.6, 11.0, 12.2],
+      76: [7.1, 7.7, 11.2, 12.4],
+      77: [7.3, 7.9, 11.5, 12.6],
+      78: [7.4, 8.1, 11.7, 12.9],
+      79: [7.6, 8.2, 11.9, 13.1],
+      80: [7.7, 8.4, 12.1, 13.4],
+      81: [7.9, 8.6, 12.4, 13.7],
+      82: [8.0, 8.7, 12.6, 13.9],
+      83: [8.2, 8.9, 12.9, 14.2],
+      84: [8.4, 9.1, 13.2, 14.5],
+      85: [8.6, 9.3, 13.5, 14.9],
+      86: [8.8, 9.6, 13.8, 15.2],
+      87: [9.0, 9.8, 14.1, 15.5],
+      88: [9.2, 10.0, 14.4, 15.9],
+      89: [9.4, 10.2, 14.7, 16.2],
+      90: [9.6, 10.4, 15.0, 16.5],
+      91: [9.8, 10.6, 15.3, 16.9],
+      92: [10.0, 10.8, 15.6, 17.2],
+      93: [10.1, 11.0, 15.9, 17.5],
+      94: [10.3, 11.2, 16.2, 17.9],
+      95: [10.5, 11.4, 16.5, 18.2],
+      96: [10.7, 11.6, 16.8, 18.6],
+      97: [10.9, 11.9, 17.1, 18.9],
+      98: [11.1, 12.1, 17.5, 19.3],
+      99: [11.3, 12.3, 17.8, 19.6],
+      100: [11.5, 12.5, 18.1, 20.0]
+    },
+    "24-59": {
+      65: [5.5, 6.0, 8.7, 9.7],
+      66: [5.7, 6.2, 9.0, 10.0],
+      67: [5.8, 6.3, 9.3, 10.2],
+      68: [6.0, 6.5, 9.5, 10.5],
+      69: [6.2, 6.7, 9.8, 10.8],
+      70: [6.3, 6.9, 10.0, 11.1],
+      71: [6.5, 7.0, 10.3, 11.3],
+      72: [6.6, 7.2, 10.5, 11.6],
+      73: [6.8, 7.4, 10.7, 11.8],
+      74: [6.9, 7.5, 11.0, 12.1],
+      75: [7.1, 7.7, 11.2, 12.3],
+      76: [7.2, 7.9, 11.4, 12.6],
+      77: [7.4, 8.0, 11.6, 12.8],
+      78: [7.5, 8.2, 11.8, 13.1],
+      79: [7.7, 8.3, 12.1, 13.3],
+      80: [7.8, 8.5, 12.3, 13.6],
+      81: [8.0, 8.7, 12.6, 13.9],
+      82: [8.2, 8.9, 12.8, 14.1],
+      83: [8.4, 9.1, 13.1, 14.5],
+      84: [8.5, 9.3, 13.4, 14.8],
+      85: [8.7, 9.5, 13.7, 15.1],
+      86: [8.9, 9.7, 14.0, 15.4],
+      87: [9.1, 9.9, 14.3, 15.8],
+      88: [9.3, 10.1, 14.6, 16.1],
+      89: [9.5, 10.3, 14.9, 16.4],
+      90: [9.7, 10.5, 15.2, 16.8],
+      91: [9.9, 10.8, 15.5, 17.1],
+      92: [10.1, 11.0, 15.8, 17.4],
+      93: [10.3, 11.2, 16.1, 17.8],
+      94: [10.5, 11.4, 16.4, 18.1],
+      95: [10.7, 11.6, 16.7, 18.5],
+      96: [10.8, 11.8, 17.0, 18.8],
+      97: [11.0, 12.0, 17.4, 19.2],
+      98: [11.2, 12.2, 17.7, 19.5],
+      99: [11.4, 12.4, 18.0, 19.9],
+      100: [11.6, 12.7, 18.4, 20.3],
+      101: [11.9, 12.9, 18.7, 20.7],
+      102: [12.1, 13.2, 19.1, 21.1],
+      103: [12.3, 13.4, 19.5, 21.6],
+      104: [12.5, 13.7, 19.9, 22.0],
+      105: [12.8, 13.9, 20.3, 22.5],
+      106: [13.0, 14.2, 20.8, 23.0],
+      107: [13.3, 14.5, 21.2, 23.5],
+      108: [13.6, 14.8, 21.7, 24.0],
+      109: [13.8, 15.1, 22.1, 24.5],
+      110: [14.1, 15.4, 22.6, 25.1],
+      111: [14.4, 15.7, 23.1, 25.7],
+      112: [14.7, 16.1, 23.6, 26.2],
+      113: [15.0, 16.4, 24.2, 26.8],
+      114: [15.3, 16.7, 24.7, 27.4],
+      115: [15.6, 17.1, 25.2, 28.1],
+      116: [15.9, 17.4, 25.8, 28.7],
+      117: [16.2, 17.7, 26.3, 29.3],
+      118: [16.5, 18.1, 26.9, 29.9],
+      119: [16.8, 18.4, 27.4, 30.6],
+      120: [17.2, 18.8, 28.0, 31.2]
+    }
+  }
+};
 
-            const whz = findNearestKey(age, sex, height);
-            if (whz === null) {
-                document.getElementById('result').innerHTML = '<p>No matching data for this age/sex/height. Check inputs.</p>';
-                return;
-            }
+const descriptions = {
+  sam: {
+    label: "Severe Acute Malnutrition",
+    name: "SAM",
+    range: "WHZ < −3",
+    desc: "The child is severely acutely malnourished. Immediate therapeutic feeding and medical evaluation are required. Refer to a health facility or therapeutic feeding program without delay.",
+    markerPct: 8,
+    cls: "sam"
+  },
+  mam: {
+    label: "Moderate Acute Malnutrition",
+    name: "MAM",
+    range: "−3 ≤ WHZ < −2",
+    desc: "The child has moderate acute malnutrition. Supplementary feeding and close monitoring are recommended. Follow up with a health worker for guidance.",
+    markerPct: 20,
+    cls: "mam"
+  },
+  normal: {
+    label: "Normal Nutritional Status",
+    name: "Normal",
+    range: "−2 ≤ WHZ ≤ +2",
+    desc: "The child's weight is appropriate for their height. Continue supporting good feeding practices and routine growth monitoring.",
+    markerPct: 45,
+    cls: "normal"
+  },
+  overweight: {
+    label: "Overweight",
+    name: "Overweight",
+    range: "+2 < WHZ ≤ +3",
+    desc: "The child's weight is above the normal range for their height. Review feeding practices and consult a health worker to monitor growth trends.",
+    markerPct: 73,
+    cls: "overweight"
+  },
+  obesity: {
+    label: "Obese",
+    name: "Obesity",
+    range: "WHZ > +3",
+    desc: "The child's weight is substantially above normal for their height. A health professional should assess feeding, activity, and growth trajectory.",
+    markerPct: 92,
+    cls: "obesity"
+  }
+};
 
-            const status = getStatus(whz);
-            const row = {age, sex: sex ? 'Male' : 'Female', height, weight, whz: whz.toFixed(2), status: status.text};
-            results.push(row);
+function getAgeGroup(age) {
+  return age < 24 ? "0-23" : "24-59";
+}
 
-            let html = `<div class="status ${status.class}">WHZ: ${whz.toFixed(2)} | ${status.text}</div>`;
-            html += `<p>Inputs: Age ${age}m, ${sex ? 'Male' : 'Female'}, Height ${height}cm, Weight ${weight}kg</p>`;
-            document.getElementById('result').innerHTML = html;
-            document.getElementById('exportBtn').style.display = 'block';
-        }
+function roundToNearest(val, step) {
+  return Math.round(val / step) * step;
+}
 
-        function exportResults() {
-            if (results.length === 0) return;
-            let csv = 'Age,Sex,Height,Weight,WHZ,Status\n';
-            results.forEach(r => {
-                csv += `${r.age},${r.sex},${r.height},${r.weight},${r.whz},"${r.status}"\n`;
-            });
-            const blob = new Blob([csv], {type: 'text/csv'});
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'whz-results.csv';
-            a.click();
-        }
-    </script>
+function calculate() {
+  const sex = document.getElementById('sex').value;
+  const age = parseFloat(document.getElementById('age').value);
+  const height = parseFloat(document.getElementById('height').value);
+  const weight = parseFloat(document.getElementById('weight').value);
+  const errorEl = document.getElementById('errorMsg');
+  const resultEl = document.getElementById('result');
+
+  // Validation
+  if (!sex || isNaN(age) || isNaN(height) || isNaN(weight)
+    || age < 0 || age > 59 || height < 45 || height > 120 || weight <= 0) {
+    errorEl.classList.add('visible');
+    resultEl.classList.remove('visible');
+    return;
+  }
+  errorEl.classList.remove('visible');
+
+  const ageGroup = getAgeGroup(age);
+  const sexKey = sex; // 'boy' or 'girl'
+
+  const table = tables[sexKey][ageGroup];
+  const cmKey = Math.round(height); // nearest whole cm
+
+  if (!table[cmKey]) {
+    errorEl.textContent = `No reference data found for ${cmKey} cm in the ${ageGroup} months ${sexKey} table. Check your measurements.`;
+    errorEl.classList.add('visible');
+    resultEl.classList.remove('visible');
+    return;
+  }
+
+  errorEl.textContent = 'Please fill in all fields with valid values.';
+
+  const [samMax, mamMax, normalMax, overweightMax] = table[cmKey];
+  let status;
+
+  if (weight <= samMax) {
+    status = descriptions.sam;
+  } else if (weight <= mamMax) {
+    status = descriptions.mam;
+  } else if (weight <= normalMax) {
+    status = descriptions.normal;
+  } else if (weight <= overweightMax) {
+    status = descriptions.overweight;
+  } else {
+    status = descriptions.obesity;
+  }
+
+  // Update UI
+  const card = document.getElementById('statusCard');
+  card.className = `status-card ${status.cls}`;
+  document.getElementById('statusLabel').textContent = status.label;
+  document.getElementById('statusName').textContent = status.name;
+  document.getElementById('statusDesc').textContent = status.desc;
+  document.getElementById('zRange').textContent = `Z-Score Range: ${status.range}`;
+
+  // Marker position
+  document.getElementById('marker').style.left = status.markerPct + '%';
+
+  // Input summary pills
+  const measureType = (age < 24 || height < 87) ? 'Length (lying)' : 'Height (standing)';
+  document.getElementById('inputSummary').innerHTML = `
+    <span class="pill">${sex === 'boy' ? '♂ Boy' : '♀ Girl'}</span>
+    <span class="pill">${age} months</span>
+    <span class="pill">${measureType}: ${height} cm</span>
+    <span class="pill">Weight: ${weight} kg</span>
+  `;
+
+  resultEl.classList.add('visible');
+  resultEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+// Live hint update
+document.getElementById('age').addEventListener('input', function() {
+  const age = parseFloat(this.value);
+  const hintEl = document.getElementById('measureHint');
+  if (!isNaN(age)) {
+    if (age < 24) {
+      hintEl.textContent = 'Measure lying down (length) for < 24 months';
+    } else {
+      hintEl.textContent = 'Measure standing up (height) for ≥ 24 months';
+    }
+  }
+});
+
+// Enter key
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter') calculate();
+
+    let zScore;
+
+// Estimate Z-score using linear interpolation
+if (weight <= samMax) {
+  zScore = -3 - ((samMax - weight) / samMax); // below -3
+} else if (weight <= mamMax) {
+  zScore = -3 + ((weight - samMax) / (mamMax - samMax)) * 1; // -3 to -2
+} else if (weight <= normalMax) {
+  zScore = -2 + ((weight - mamMax) / (normalMax - mamMax)) * 4; // -2 to +2
+} else if (weight <= overweightMax) {
+  zScore = 2 + ((weight - normalMax) / (overweightMax - normalMax)) * 1; // +2 to +3
+} else {
+  zScore = 3 + ((weight - overweightMax) / overweightMax); // > +3
+}
+
+// Round to 2 decimals
+zScore = zScore.toFixed(2);
+
+    document.getElementById('zValue').textContent = `Z-Score: ${zScore}`;
+
+
+});
+</script>
 </body>
 </html>
+
+<footer>
+    <p><strong>Developed by Narayan Rao Sameni</strong></p>
+    <a href="https://www.linkedin.com/in/narayanraosameni/" target="_blank">LinkedIn Profile</a>
+    
+    <p>Refer: 
+            <a href="https://www.who.int/tools/child-growth-standards/standards/weight-for-length-height">WHO Child Growth Charts</a> | 
+            <a href="https://www.fantaproject.org/sites/default/files/download/Calculate-WHZ-2.6-NACS-Users-Guide-Apr2016.pdf">WHZ Chart</a>
+
+</footer>
